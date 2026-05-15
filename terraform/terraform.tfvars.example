@@ -1,0 +1,45 @@
+# =============================================================================
+# Copia este archivo a `terraform.tfvars` y edita los valores.
+# terraform.tfvars está en .gitignore - NUNCA lo commitees.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Etapa 0 — Infra base (OBLIGATORIO para cualquier despliegue)
+# -----------------------------------------------------------------------------
+
+# Tu IP pública (obtener con: curl -s ifconfig.me)
+my_ip_cidr = "TU_IP/32"
+
+# Password de RDS PostgreSQL. Alfanumérico, mínimo 8 chars.
+# Genera uno con: openssl rand -hex 12
+db_password = "BiteSprint3Lab"
+
+
+# -----------------------------------------------------------------------------
+# Etapa 1 — Manejador de Reportes ASG + ALB (OBLIGATORIO)
+# -----------------------------------------------------------------------------
+
+# URL HTTPS de tu repo público en GitHub con este código.
+reports_git_repo_url = "https://github.com/TU_USUARIO/bite-sprint3.git"
+
+# Branch del repo.
+reports_git_ref = "main"
+
+# SECRET_KEY de Django.
+# Genera uno con: python3 -c "import secrets; print(secrets.token_urlsafe(50))"
+django_secret_key = "CHANGE_ME_GENERATE_WITH_secrets.token_urlsafe(50)"
+
+
+# -----------------------------------------------------------------------------
+# Etapa 4 — SMTP (Gmail App Password) para notificaciones de seguridad
+# -----------------------------------------------------------------------------
+# Puede dejarse vacío si solo vas a probar hasta Etapa 3.
+# Para Etapa 4:
+#   1. En Gmail (cuenta usada para envíos), activa 2FA
+#   2. Genera App Password: https://myaccount.google.com/apppasswords
+#   3. Pega los 16 caracteres en smtp_password (sin espacios)
+
+smtp_user            = "bite.sprint3@gmail.com"           # email Gmail (puede ser una cuenta nueva)
+smtp_password        = "abcdefghijklmnop"                 # App Password de 16 chars
+smtp_from            = "bite.sprint3@gmail.com"           # típicamente = smtp_user
+security_admin_email = "tu.email.personal@gmail.com"     # quien recibe las notificaciones

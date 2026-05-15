@@ -1,0 +1,85 @@
+version: "3.8"
+
+# =============================================================================
+# Stack que corre en la EC2 'kong-host':
+#   - Kong API Gateway (DB-less mode con kong.yml)
+#   - RabbitMQ (messaging para notificaciones del Sprint 3 Etapa 4)
+#   - Notification Worker (consume cola y manda SMTP — Etapa 4)
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Kong API Gateway
+  # ---------------------------------------------------------------------------
+  kong:
+    image: kong:3.7-ubuntu
+    container_name: kong
+    restart: always
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: "/kong/kong.yml"
+      KONG_PROXY_ACCESS_LOG: "/dev/stdout"
+      KONG_ADMIN_ACCESS_LOG: "/dev/stdout"
+      KONG_PROXY_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      # Logs detallados — útil para el experimento
+      KONG_LOG_LEVEL: "info"
+    volumes:
+      - ./kong.yml:/kong/kong.yml:ro
+    ports:
+      - "8000:8000"   # proxy (acá llegan los clientes)
+      - "8001:8001"   # admin API (acá hacemos status checks)
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # RabbitMQ — para notificaciones de Etapa 4 (ASR-SEG-02)
+  # ---------------------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: bite
+      RABBITMQ_DEFAULT_PASS: bitepass
+    ports:
+      - "5672:5672"     # AMQP protocol
+      - "15672:15672"   # Management UI (acceso solo desde tu IP via SG)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Notification Worker — Etapa 4 (ASR-SEG-02)
+  # Consume eventos de "acceso no autorizado" y manda email via SMTP
+  # ---------------------------------------------------------------------------
+  notification-worker:
+    build:
+      context: ../manejador-notificaciones
+      dockerfile: Dockerfile
+    container_name: notification-worker
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: bite
+      RABBITMQ_PASSWORD: bitepass
+      RABBITMQ_QUEUE: bite.security.notifications
+      # SMTP via Gmail — App Password (NO la password real de Gmail)
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: "587"
+      SMTP_USER: "${SMTP_USER}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD}"
+      SMTP_FROM: "${SMTP_FROM}"
+      # Email del admin de seguridad (recibe TODAS las notificaciones)
+      SECURITY_ADMIN_EMAIL: "${SECURITY_ADMIN_EMAIL}"
