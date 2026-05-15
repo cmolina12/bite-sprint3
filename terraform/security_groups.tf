@@ -49,7 +49,7 @@ resource "aws_security_group" "kong" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -76,7 +76,7 @@ resource "aws_security_group" "alb" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.kong.id]
+    security_groups = ["0.0.0.0/0"]
   }
 
   egress {
@@ -103,7 +103,7 @@ resource "aws_security_group" "reports" {
     from_port       = 8000
     to_port         = 8000
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
+    security_groups = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -111,7 +111,7 @@ resource "aws_security_group" "reports" {
     from_port       = 8000
     to_port         = 8000
     protocol        = "tcp"
-    security_groups = [aws_security_group.kong.id]
+    security_groups = ["0.0.0.0/0"]
   }
 
   ingress {
