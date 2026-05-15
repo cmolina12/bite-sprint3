@@ -71,18 +71,23 @@ apt-get install -y \
 # -----------------------------------------------------------------------------
 # 3. Clonar/actualizar el código
 # -----------------------------------------------------------------------------
-APP_DIR=/opt/bite/manejador-reportes
+# El repo se clona en /opt/bite/repo/. El código Django vive en el subdirectorio
+# services/manejador-reportes/ dentro del repo, así que APP_DIR apunta ahí.
+REPO_DIR=/opt/bite/repo
+APP_DIR=$REPO_DIR/services/manejador-reportes
 mkdir -p /opt/bite
 
-if [ -d "$APP_DIR/.git" ]; then
+if [ -d "$REPO_DIR/.git" ]; then
     echo "==> Repo ya existe, haciendo pull..."
-    cd "$APP_DIR" && git pull --rebase
+    cd "$REPO_DIR" && git pull --rebase
 else
     echo "==> Clonando $GIT_REPO_URL ($GIT_REF)..."
-    git clone --branch "$GIT_REF" --single-branch "$GIT_REPO_URL" "$APP_DIR"
+    git clone --branch "$GIT_REF" --single-branch "$GIT_REPO_URL" "$REPO_DIR"
 fi
 
 cd "$APP_DIR"
+echo "==> Working dir: $(pwd)"
+ls -la
 
 # -----------------------------------------------------------------------------
 # 4. Virtualenv + dependencias Python
@@ -130,7 +135,7 @@ After=network.target
 Type=notify
 User=root
 Group=root
-WorkingDirectory=/opt/bite/manejador-reportes
+WorkingDirectory=/opt/bite/repo/services/manejador-reportes
 EnvironmentFile=/etc/environment
 ExecStart=/opt/bite/venv/bin/gunicorn \
     --bind 0.0.0.0:8000 \
