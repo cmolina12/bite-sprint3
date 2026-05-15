@@ -84,3 +84,43 @@ variable "redis_node_type" {
   type        = string
   default     = "cache.t3.micro"
 }
+
+# =============================================================================
+# Variables de Auth0 (Etapa 3 - SEG-01)
+# =============================================================================
+# Si las dejas vacías, el middleware de tenant queda en MODO PERMISIVO
+# (deja pasar todo). Solo configúralas cuando hayas hecho el setup manual
+# de Auth0 descrito en docs/03-etapa3-seg-01.md
+# =============================================================================
+
+variable "auth0_domain" {
+  description = "Dominio del tenant Auth0, ej: dev-xxxxx.us.auth0.com"
+  type        = string
+  default     = ""
+}
+
+variable "auth0_audience" {
+  description = "Identifier de la API en Auth0, ej: https://bite.co/api"
+  type        = string
+  default     = "https://bite.co/api"
+}
+
+variable "auth0_tenant_claim" {
+  description = "Nombre completo del custom claim de tenant en el JWT, ej: https://bite.co/tenant_id"
+  type        = string
+  default     = "https://bite.co/tenant_id"
+}
+
+variable "auth0_mgmt_client_id" {
+  description = "Client ID de la M2M Application para la Management API. Requerido para bloqueo automático (Etapa 4)."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "auth0_mgmt_client_secret" {
+  description = "Client Secret de la M2M Application."
+  type        = string
+  default     = ""
+  sensitive   = true
+}

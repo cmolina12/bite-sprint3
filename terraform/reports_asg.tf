@@ -57,6 +57,43 @@ variable "django_secret_key" {
 }
 
 # -----------------------------------------------------------------------------
+# Variables de Auth0 (Etapa 3 — SEG-01 y SEG-02)
+# Pueden quedar vacías hasta que configures Auth0. Si están vacías, el
+# middleware de tenant entra en "modo permisivo" (deja pasar todo).
+# -----------------------------------------------------------------------------
+variable "auth0_domain" {
+  description = "Domain de tu tenant Auth0. Ej: dev-xxxxx.us.auth0.com"
+  type        = string
+  default     = ""
+}
+
+variable "auth0_audience" {
+  description = "Audience (Identifier) de la API en Auth0. Ej: https://bite.co/api"
+  type        = string
+  default     = "https://bite.co/api"
+}
+
+variable "auth0_tenant_claim" {
+  description = "Claim completo del JWT donde Django busca el tenant_id. Ej: https://bite.co/tenant_id"
+  type        = string
+  default     = "https://bite.co/tenant_id"
+}
+
+variable "auth0_mgmt_client_id" {
+  description = "Client ID de la M2M Application para Management API (bloqueo de usuarios)."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "auth0_mgmt_client_secret" {
+  description = "Client Secret de la M2M Application para Management API."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+# -----------------------------------------------------------------------------
 # User-data script (cloud-init) que se ejecutará en cada EC2 al arrancar
 # -----------------------------------------------------------------------------
 locals {
@@ -75,6 +112,21 @@ locals {
     export SECRET_KEY='${var.django_secret_key}'
     export GIT_REPO_URL='${var.reports_git_repo_url}'
     export GIT_REF='${var.reports_git_ref}'
+
+    # --- Auth0 (Etapa 3 - SEG-01) ---
+    # Si están vacíos, el middleware queda en modo permisivo.
+    export AUTH0_DOMAIN='${var.auth0_domain}'
+    export AUTH0_AUDIENCE='${var.auth0_audience}'
+    export AUTH0_TENANT_CLAIM='${var.auth0_tenant_claim}'
+    export AUTH0_MGMT_CLIENT_ID='${var.auth0_mgmt_client_id}'
+    export AUTH0_MGMT_CLIENT_SECRET='${var.auth0_mgmt_client_secret}'
+
+    # --- RabbitMQ (Etapa 4 - SEG-02) ---
+    # Apunta a la Elastic IP de Kong, donde corre el broker.
+    export RABBITMQ_HOST='${aws_eip.kong.public_ip}'
+    export RABBITMQ_PORT='5672'
+    export RABBITMQ_USER='bite'
+    export RABBITMQ_PASSWORD='bitepass'
 
     # Descarga el bootstrap del repo (clonamos rápido solo el script)
     apt-get update -y
