@@ -31,7 +31,7 @@ resource "aws_security_group" "kong" {
     from_port   = 8001
     to_port     = 8001
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # RabbitMQ Management UI (solo desde tu IP)
