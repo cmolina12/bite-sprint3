@@ -22,13 +22,13 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
 
-from .auth0_validator import (
+from ..auth0_validator import (
     validate_token,
     extract_tenant_id,
     TokenValidationError,
     MissingTenantClaim,
 )
-from .models import AuditLog
+from ..models import AuditLog
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +190,7 @@ class TenantAuthorizationMiddleware(MiddlewareMixin):
         Importa dinámicamente para que la Etapa 3 funcione aún sin Etapa 4.
         """
         try:
-            from .security_response import notify_unauthorized_access
+            from ..security_response import notify_unauthorized_access
             notify_unauthorized_access(
                 user_sub=user_sub,
                 user_tenant=user_tenant,
