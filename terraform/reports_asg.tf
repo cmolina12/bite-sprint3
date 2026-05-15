@@ -123,7 +123,7 @@ locals {
 
     # --- RabbitMQ (Etapa 4 - SEG-02) ---
     # Apunta a la Elastic IP de Kong, donde corre el broker.
-    export RABBITMQ_HOST='${aws_eip.kong.public_ip}'
+    export RABBITMQ_HOST='${aws_instance.kong.private_ip}'
     export RABBITMQ_PORT='5672'
     export RABBITMQ_USER='bite'
     export RABBITMQ_PASSWORD='bitepass'

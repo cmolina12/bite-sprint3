@@ -34,6 +34,15 @@ resource "aws_security_group" "kong" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # RabbitMQ AMQP desde las EC2 de reportes (notificaciones de seguridad)
+  ingress {
+    description     = "RabbitMQ AMQP desde reportes"
+    from_port       = 5672
+    to_port         = 5672
+    protocol        = "tcp"
+    security_groups = [aws_security_group.reports.id]
+  }
+
   # RabbitMQ Management UI (solo desde tu IP)
   ingress {
     description = "RabbitMQ Management UI"
