@@ -50,7 +50,7 @@ resource "aws_security_group" "kong" {
     from_port   = 15672
     to_port     = 15672
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # SSH (solo desde tu IP)
