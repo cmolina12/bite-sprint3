@@ -26,32 +26,33 @@ echo "==> [$(date)] Iniciando bootstrap de BITE.co Manejador de Reportes"
 EC2_INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id || echo "unknown")
 
 cat >> /etc/environment <<EOF
-DJANGO_SETTINGS_MODULE=bite.settings
-DJANGO_SECRET_KEY=${SECRET_KEY}
-DJANGO_DEBUG=False
-DB_HOST=${DB_HOST}
-DB_PORT=${DB_PORT}
-DB_NAME=${DB_NAME}
-DB_USER=${DB_USER}
-DB_PASSWORD=${DB_PASSWORD}
-REDIS_HOST=${REDIS_HOST}
-REDIS_PORT=${REDIS_PORT}
-EC2_INSTANCE_ID=${EC2_INSTANCE_ID}
-AUTH0_DOMAIN=${AUTH0_DOMAIN:-}
-AUTH0_AUDIENCE=${AUTH0_AUDIENCE:-}
-AUTH0_TENANT_CLAIM=${AUTH0_TENANT_CLAIM:-}
-AUTH0_MGMT_CLIENT_ID=${AUTH0_MGMT_CLIENT_ID:-}
-AUTH0_MGMT_CLIENT_SECRET=${AUTH0_MGMT_CLIENT_SECRET:-}
-RABBITMQ_HOST=${RABBITMQ_HOST:-}
-RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
-RABBITMQ_USER=${RABBITMQ_USER:-bite}
-RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-bitepass}
+DJANGO_SETTINGS_MODULE="bite.settings"
+DJANGO_SECRET_KEY="${SECRET_KEY}"
+DJANGO_DEBUG="False"
+DB_HOST="${DB_HOST}"
+DB_PORT="${DB_PORT}"
+DB_NAME="${DB_NAME}"
+DB_USER="${DB_USER}"
+DB_PASSWORD="${DB_PASSWORD}"
+REDIS_HOST="${REDIS_HOST}"
+REDIS_PORT="${REDIS_PORT}"
+EC2_INSTANCE_ID="${EC2_INSTANCE_ID}"
+AUTH0_DOMAIN="${AUTH0_DOMAIN:-}"
+AUTH0_AUDIENCE="${AUTH0_AUDIENCE:-}"
+AUTH0_TENANT_CLAIM="${AUTH0_TENANT_CLAIM:-}"
+AUTH0_MGMT_CLIENT_ID="${AUTH0_MGMT_CLIENT_ID:-}"
+AUTH0_MGMT_CLIENT_SECRET="${AUTH0_MGMT_CLIENT_SECRET:-}"
+RABBITMQ_HOST="${RABBITMQ_HOST:-}"
+RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
+RABBITMQ_USER="${RABBITMQ_USER:-bite}"
+RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-bitepass}"
 EOF
 
-# También las exportamos para esta sesión del script
-set -a
-. /etc/environment
-set +a
+# NO usamos `. /etc/environment` porque /etc/environment NO es un script bash
+# (es un archivo de pares clave=valor para PAM). Los valores con caracteres
+# especiales rompen el `source`. Las variables ya están exportadas en este
+# proceso desde el user-data parent, así que NO necesitamos re-leerlas.
+echo "==> Variables de entorno ya cargadas desde user-data"
 
 # -----------------------------------------------------------------------------
 # 2. Instalar dependencias del sistema
